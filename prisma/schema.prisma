@@ -1,0 +1,157 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int           @id @default(autoincrement())
+  email        String        @unique
+  password     String
+  id_number    Int           @unique
+  latitude     Float?
+  longitude    Float?
+  role         Role
+  profile      Profile?
+  transactions Transaction[]
+  posts        Post[]
+  comments     Comment[]
+  news         News[]
+  Booking      Booking[]
+}
+
+model Booking {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  lawyerId    Int
+  date        String
+  startTime   String
+  endTime     String
+  description String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  lawyer      User     @relation(fields: [lawyerId], references: [id])
+}
+
+model Profile {
+  id                 Int           @id @default(autoincrement())
+  user               User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId             Int           @unique
+  userProfileImage   String?
+  IDImage            String
+  gender             Gender
+  name               String
+  dateOfBirth        DateTime
+  maritalStatus      MaritalStatus
+  city               String
+  address            String
+  phone              String
+  mobile             String
+  accountIsActivated Boolean       @default(false)
+  data               Json?
+}
+
+model Transaction {
+  id          Int                @id @default(autoincrement())
+  title       String
+  created     DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  author      User               @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId    Int
+  description String
+  status      TransactionsStatus @default(WAITTING)
+  type        TransactionsType
+  data        Json
+  document    Document?
+}
+
+model News {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  image       String?
+  created     DateTime @default(now())
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId    Int
+}
+
+model LegalCircular {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  title       String
+  description String
+}
+
+model Document {
+  id            Int          @id @default(autoincrement())
+  name          String
+  format        String
+  created       DateTime     @default(now())
+  transaction   Transaction? @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  transactionId Int          @unique
+}
+
+model Post {
+  id          Int       @id @default(autoincrement())
+  title       String
+  created     DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  author      User[]
+  authorId    Int
+  description String
+  comments    Comment[]
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  data      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  Int
+  post      Post[]
+}
+
+model Court {
+  id          Int    @id @default(autoincrement())
+  name        String
+  address     String
+  description String
+  latitude    Float
+  longitude   Float
+}
+
+enum TransactionsType {
+  TYPE1
+  TYPE2
+  TYPE3
+}
+
+enum TransactionsStatus {
+  REJECTED
+  APPROVED
+  WAITTING
+}
+
+enum Role {
+  BASIC
+  ADMIN
+  LAWYER
+  JUDGE
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum MaritalStatus {
+  MARRIED
+  SINGLE
+  DIVORCED
+  WIDOWED
+}

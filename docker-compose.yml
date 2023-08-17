@@ -1,0 +1,26 @@
+version: "3.8"
+services:
+  api:
+    container_name: api
+    restart: always
+    build: .
+    ports:
+      - ${PORT}:${PORT}
+    depends_on:
+      - db
+
+    #command: ['npx prisma generate','npx prisma migrate']
+
+  db:
+    container_name: postgres
+    image: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - data:/data/db
+    environment:
+      - POSTGRES_PASSWORD=123456
+      - POSTGRES_DB=storage
+
+volumes:
+  data:
